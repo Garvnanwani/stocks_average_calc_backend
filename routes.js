@@ -20,9 +20,9 @@ router.post('/api/upload', async (req, res) => {
                 const { id: transactionId, quantity, price, trade_typr: tradeType } = record
                 const stock = new Stock({
                     userId,
-                    transactionId,
+                    transactionId: parseInt(transactionId),
                     quantity: parseInt(quantity),
-                    price,
+                    price: parseInt(price),
                     tradeType
                 })
 
@@ -57,28 +57,29 @@ router.get('/api/average/:userId', async (req, res) => {
             if (transactions[i].tradeType === "BUY") {
                 for (let j = 0; j <= i; j++) {
                     if (transactions[j].tradeType === "BUY") {
-                        totalQuantity += parseInt(transactions[j].quantity);
-                        sumQuantity += parseInt(transactions[j].quantity) * transactions[j].price;
+                        totalQuantity += transactions[j].quantity;
+                        sumQuantity += transactions[j].quantity * transactions[j].price;
                     }
                 }
             } else {
-                sellQuantity = parseInt(transactions[i].quantity);
+                sellQuantity = transactions[i].quantity;
+                sellQuantity = transactions[i].quantity;
                 let isSold = false;
                 for (let j = 0; j < i; j++) {
                     if (transactions[j].tradeType === "BUY" && !isSold) {
-                        if (parseInt(transactions[j].quantity) - sellQuantity >= 0) {
-                            transactions[j].quantity = parseInt(transactions[j].quantity) - sellQuantity;
+                        if (transactions[j].quantity - sellQuantity >= 0) {
+                            transactions[j].quantity = transactions[j].quantity - sellQuantity;
 
                             isSold = true;
                         } else {
+                            sellQuantity -= transactions[j].quantity;
                             transactions[j].quantity = 0;
-                            sellQuantity -= parseInt(transactions[j].quantity);
                         }
                     }
                     if (isSold) {
                         if (transactions[j].tradeType === "BUY") {
-                            totalQuantity += parseInt(transactions[j].quantity);
-                            sumQuantity += parseInt(transactions[j].quantity) * transactions[j].price;
+                            totalQuantity += transactions[j].quantity;
+                            sumQuantity += transactions[j].quantity * transactions[j].price;
                         }
                     }
                 }
